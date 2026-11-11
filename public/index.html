@@ -136,7 +136,7 @@
             </h2>
           </div>
 
-          <!-- 오행 대조 카드 -->
+          <!-- 오행 대조 카드 및 메인 궁합 점수 (유지) -->
           <div class="elements-compare-container">
             <!-- 내 오행 카드 -->
             <div id="my-element-card" class="element-card">
@@ -146,7 +146,7 @@
               <div class="element-symbol" id="my-element-symbol">나무의 기운</div>
             </div>
 
-            <!-- 관계 화살표 및 궁합 점수 -->
+            <!-- 관계 화살표 및 메인 케미 궁합 점수 -->
             <div class="match-score-card">
               <div class="relation-name" id="res-relation-name">상생(相生)</div>
               <div class="score-display">
@@ -165,14 +165,14 @@
             </div>
           </div>
 
-          <!-- AI 해설 영역 -->
+          <!-- AI 해설 영역 (유지) -->
           <div class="result-description-card">
             <h3 class="desc-title">💌 우리의 운명 스토리</h3>
             <p class="desc-summary" id="res-summary">총평 로딩 중...</p>
             <div class="desc-detail" id="res-detail">AI 상세 해설 로딩 중...</div>
           </div>
 
-          <!-- 연애, 결혼, 친구 시뮬레이션 카드 -->
+          <!-- 연애, 결혼, 우정 궁합 카드 -->
           <div class="scenario-grid">
             <div class="scenario-card">
               <h4>💖 연애 시뮬레이션</h4>
@@ -182,9 +182,29 @@
               <h4>💍 결혼/동반자 시뮬레이션</h4>
               <p id="res-marriage">결혼 분석 로딩 중...</p>
             </div>
-            <div class="scenario-card full-width">
-              <h4>🍀 우리가 친구가 된다면?</h4>
-              <p id="res-friendship">친구 분석 로딩 중...</p>
+
+            <!-- 교체된 '우리의 우정 궁합' 카드 -->
+            <div class="scenario-card full-width friendship-card">
+              <div class="friendship-card-header">
+                <h4>🍀 우리의 우정 궁합</h4>
+                <p class="friendship-question">친구가 된다면 얼마나 친해질 수 있을까?</p>
+              </div>
+
+              <!-- 우정 궁합 점수 표시 -->
+              <div class="friendship-score-box">
+                <div class="friendship-score-display">
+                  <span class="friendship-score-num" id="res-friendship-score">95</span>
+                  <span class="friendship-score-unit">점</span>
+                </div>
+              </div>
+
+              <!-- 레트로 게임 점수 게이지 바 -->
+              <div class="retro-gauge-track" aria-hidden="true">
+                <div class="retro-gauge-fill" id="res-friendship-gauge" style="width: 0%;"></div>
+              </div>
+
+              <!-- 우정 궁합 해설 -->
+              <p class="friendship-comment" id="res-friendship-comment">우정 궁합 해설을 계산하는 중입니다...</p>
             </div>
           </div>
 

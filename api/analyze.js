@@ -4,7 +4,7 @@
 // ==============================================================================
 
 const { validateAnalyzeRequest } = require('../lib/validation');
-const { calculateElement, calculateCompatibility } = require('../lib/elements');
+const { calculateElement, calculateCompatibility, calculateFriendshipCompatibility } = require('../lib/elements');
 const { generateAIInterpretation } = require('../lib/services');
 
 /**
@@ -41,7 +41,10 @@ async function handler(req, res) {
     // 4. 오행 간의 상생/상극 관계, 점수, 등급 산출
     const compatibility = calculateCompatibility(myElement, biasElement);
 
-    // 5. OpenAI GPT-4o-mini를 통한 밝고 팬심 가득한 해설 생성 (연애, 결혼, 친구 시뮬레이션)
+    // 5. JavaScript 고정 규칙 기반 우정 궁합 점수 및 해설 산출 (OpenAI API 미사용으로 토큰 절약)
+    const friendship = calculateFriendshipCompatibility(compatibility.relation);
+
+    // 6. OpenAI GPT-4o-mini를 통한 밝고 팬심 가득한 해설 생성 (연애 및 결혼 시뮬레이션)
     let aiContent;
     try {
       aiContent = await generateAIInterpretation({
@@ -60,7 +63,7 @@ async function handler(req, res) {
       });
     }
 
-    // 6. 최종 성공 응답 반환
+    // 7. 최종 성공 응답 반환
     return res.status(200).json({
       ok: true,
       data: {
@@ -85,7 +88,10 @@ async function handler(req, res) {
         description: aiContent.description,
         datingScenario: aiContent.datingScenario,
         marriageScenario: aiContent.marriageScenario,
-        friendshipScenario: aiContent.friendshipScenario,
+        friendship: {
+          score: friendship.score,
+          comment: friendship.comment
+        },
         disclaimer: '양력 출생연도 기준 간이 오행 테스트입니다.'
       }
     });

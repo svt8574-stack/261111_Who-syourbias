@@ -561,6 +561,74 @@ body {
   color: #444444;
 }
 
+/* 10-1. 우정 궁합 카드 전용 스타일 */
+.friendship-card {
+  background: #ffffff;
+}
+
+.friendship-card-header {
+  margin-bottom: 8px;
+}
+
+.friendship-question {
+  font-size: 0.8rem !important;
+  color: var(--text-muted) !important;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.friendship-score-box {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.friendship-score-display {
+  display: flex;
+  align-items: baseline;
+}
+
+.friendship-score-num {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #0b1e48;
+  line-height: 1;
+}
+
+.friendship-score-unit {
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #555555;
+  margin-left: 2px;
+}
+
+/* 레트로 게이지 바 */
+.retro-gauge-track {
+  width: 100%;
+  height: 14px;
+  background-color: #e0e0e0;
+  border: 2px solid var(--border-dark);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  box-shadow: inset 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.retro-gauge-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ffca28, #ff2e93);
+  width: 0%;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.friendship-comment {
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  color: #1e3c72 !important;
+  line-height: 1.4 !important;
+}
+
 .disclaimer-text {
   font-size: 0.75rem;
   color: #777777;

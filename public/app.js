@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const biasNameError = document.getElementById('bias-name-error');
   const biasBirthError = document.getElementById('bias-birthdate-error');
 
-  // 결과 화면 엘리먼트들
+  // 결과 화면 엘리먼트들 (메인 케미 궁합 및 오행 카드)
   const resMyName = document.getElementById('res-my-name');
   const resBiasName = document.getElementById('res-bias-name');
   
@@ -51,7 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const resDetail = document.getElementById('res-detail');
   const resDating = document.getElementById('res-dating');
   const resMarriage = document.getElementById('res-marriage');
-  const resFriendship = document.getElementById('res-friendship');
+
+  // 우정 궁합 엘리먼트들
+  const resFriendshipScore = document.getElementById('res-friendship-score');
+  const resFriendshipGauge = document.getElementById('res-friendship-gauge');
+  const resFriendshipComment = document.getElementById('res-friendship-comment');
 
   // 방명록 관련 엘리먼트들
   const feedbackForm = document.getElementById('feedback-form');
@@ -74,7 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // ----------------------------------------------------------------------------
   function setupNumericOnlyInput(inputElement) {
     inputElement.addEventListener('input', (e) => {
-      // 숫자 이외의 문자 제거 및 8자리 제한
       const cleaned = e.target.value.replace(/[^0-9]/g, '').slice(0, 8);
       if (e.target.value !== cleaned) {
         e.target.value = cleaned;
@@ -311,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ----------------------------------------------------------------------------
-  // 10. 결과 화면 데이터 렌더링 함수 (친구 시뮬레이션 포함)
+  // 10. 결과 화면 데이터 렌더링 함수 (메인 케미 궁합 + 우정 궁합 렌더링)
   // ----------------------------------------------------------------------------
   /**
    * 서버로부터 받은 궁합 데이터를 화면에 안전하게 출력합니다.
@@ -334,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
     biasElementName.textContent = `${data.biasElement.name} (${data.biasElement.hanja})`;
     biasElementSymbol.textContent = `${data.biasElement.symbol}의 기운`;
 
-    // 3) 점수 및 관계
+    // 3) 메인 케미 점수 및 관계
     resRelationName.textContent = data.relation;
     resScoreNumber.textContent = data.score;
     resScoreGrade.textContent = data.grade;
@@ -344,8 +347,19 @@ document.addEventListener('DOMContentLoaded', () => {
     resDetail.textContent = data.description;
     resDating.textContent = data.datingScenario;
     resMarriage.textContent = data.marriageScenario;
-    if (resFriendship) {
-      resFriendship.textContent = data.friendshipScenario || '친구 시나리오를 불러오는 중입니다.';
+
+    // 5) 우정 궁합 점수, 게이지 바, 해설 렌더링
+    if (data.friendship) {
+      const friendshipScore = data.friendship.score || 80;
+      resFriendshipScore.textContent = friendshipScore;
+      resFriendshipComment.textContent = data.friendship.comment || '';
+      
+      // 레트로 게이지 바 너비 애니메이션 적용
+      setTimeout(() => {
+        if (resFriendshipGauge) {
+          resFriendshipGauge.style.width = `${friendshipScore}%`;
+        }
+      }, 100);
     }
   }
 
@@ -363,6 +377,9 @@ document.addEventListener('DOMContentLoaded', () => {
   btnRestart.addEventListener('click', () => {
     compatForm.reset();
     clearErrors();
+    if (resFriendshipGauge) {
+      resFriendshipGauge.style.width = '0%';
+    }
     switchView('form');
     myBirthDateInput.focus();
   });
@@ -410,7 +427,6 @@ document.addEventListener('DOMContentLoaded', () => {
     switchView('loading');
 
     try {
-      // 서버 API에는 YYYY-MM-DD 포맷으로 변환하여 전달
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: {
