@@ -545,6 +545,10 @@ body {
   box-shadow: 2px 2px 0px rgba(0,0,0,0.08);
 }
 
+.scenario-card.full-width {
+  grid-column: 1 / -1;
+}
+
 .scenario-card h4 {
   font-size: 0.85rem;
   margin-bottom: 6px;

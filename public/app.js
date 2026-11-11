@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const resDetail = document.getElementById('res-detail');
   const resDating = document.getElementById('res-dating');
   const resMarriage = document.getElementById('res-marriage');
+  const resFriendship = document.getElementById('res-friendship');
 
   // 방명록 관련 엘리먼트들
   const feedbackForm = document.getElementById('feedback-form');
@@ -68,13 +69,71 @@ document.addEventListener('DOMContentLoaded', () => {
   const toast = document.getElementById('toast');
   let toastTimer = null;
 
-  // 오늘 날짜 계산 (미래 날짜 선택 방지용 max 속성 설정)
-  const today = new Date().toISOString().split('T')[0];
-  myBirthDateInput.setAttribute('max', today);
-  biasBirthDateInput.setAttribute('max', today);
+  // ----------------------------------------------------------------------------
+  // 2. 생년월일 숫자 입력 제어 (숫자만 허용, 최대 8자리)
+  // ----------------------------------------------------------------------------
+  function setupNumericOnlyInput(inputElement) {
+    inputElement.addEventListener('input', (e) => {
+      // 숫자 이외의 문자 제거 및 8자리 제한
+      const cleaned = e.target.value.replace(/[^0-9]/g, '').slice(0, 8);
+      if (e.target.value !== cleaned) {
+        e.target.value = cleaned;
+      }
+    });
+  }
+
+  setupNumericOnlyInput(myBirthDateInput);
+  setupNumericOnlyInput(biasBirthDateInput);
 
   // ----------------------------------------------------------------------------
-  // 2. 토스트 알림 표시 함수
+  // 3. 8자리 생년월일 유효성 검증 및 YYYY-MM-DD 변환 함수
+  // ----------------------------------------------------------------------------
+  /**
+   * YYYYMMDD 형식의 8자리 숫자 생년월일을 검증하고 YYYY-MM-DD로 변환합니다.
+   * @param {string} dateStr8 - 8자리 숫자 문자열
+   * @param {string} fieldLabel - 에러 메시지에 표시할 필드명
+   * @returns {{ valid: boolean, error?: string, formatted?: string }}
+   */
+  function validateAndParseDate8(dateStr8, fieldLabel) {
+    if (!dateStr8 || dateStr8.length !== 8) {
+      return { valid: false, error: `${fieldLabel}을 8자리 숫자로 입력해주세요. (예: 20030923)` };
+    }
+
+    const year = parseInt(dateStr8.slice(0, 4), 10);
+    const month = parseInt(dateStr8.slice(4, 6), 10);
+    const day = parseInt(dateStr8.slice(6, 8), 10);
+
+    // 1900년 이전 출생 검증
+    if (year < 1900) {
+      return { valid: false, error: `${fieldLabel}: 1900년 이후의 연도를 입력해주세요.` };
+    }
+
+    // 월(1~12) 검증
+    if (month < 1 || month > 12) {
+      return { valid: false, error: `${fieldLabel}: 올바른 월(01~12)을 입력해주세요.` };
+    }
+
+    // 해당 월의 마지막 일자 계산 (윤년 2월 29일 등 완벽 검증)
+    const lastDayOfMonth = new Date(year, month, 0).getDate();
+    if (day < 1 || day > lastDayOfMonth) {
+      return { valid: false, error: `${fieldLabel}: ${month}월에는 ${day}일이 존재하지 않습니다.` };
+    }
+
+    // 미래 날짜 방지 검증
+    const inputDate = new Date(year, month - 1, day);
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    if (inputDate > today) {
+      return { valid: false, error: `${fieldLabel}: 미래의 날짜는 입력할 수 없습니다.` };
+    }
+
+    // 서버 API용 YYYY-MM-DD 포맷 변환
+    const formatted = `${dateStr8.slice(0, 4)}-${dateStr8.slice(4, 6)}-${dateStr8.slice(6, 8)}`;
+    return { valid: true, formatted };
+  }
+
+  // ----------------------------------------------------------------------------
+  // 4. 토스트 알림 표시 함수
   // ----------------------------------------------------------------------------
   /**
    * 상단에 알림 메시지를 표시합니다.
@@ -100,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ----------------------------------------------------------------------------
-  // 3. 화면 전환 (State Navigation) 관리 함수
+  // 5. 화면 전환 (State Navigation) 관리 함수
   // ----------------------------------------------------------------------------
   /**
    * 원하는 화면만 보이게 하고 나머지는 숨깁니다.
@@ -124,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ----------------------------------------------------------------------------
-  // 4. 에러 메시지 초기화
+  // 6. 에러 메시지 초기화
   // ----------------------------------------------------------------------------
   function clearErrors() {
     myBirthError.textContent = '';
@@ -133,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ----------------------------------------------------------------------------
-  // 5. 날짜 포맷팅 헬퍼 (방명록 시간 표시용)
+  // 7. 날짜 포맷팅 헬퍼 (방명록 시간 표시용)
   // ----------------------------------------------------------------------------
   function formatKoreanDate(isoString) {
     if (!isoString) return '';
@@ -154,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ----------------------------------------------------------------------------
-  // 6. 방명록 DOM 아이템 생성 헬퍼 (XSS 보안: 반드시 textContent 사용)
+  // 8. 방명록 DOM 아이템 생성 헬퍼 (XSS 보안: 반드시 textContent 사용)
   // ----------------------------------------------------------------------------
   function createFeedbackItemElement(item) {
     const itemDiv = document.createElement('div');
@@ -195,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ----------------------------------------------------------------------------
-  // 7. 방명록 API 연동 함수 (조회 및 페이징)
+  // 9. 방명록 API 연동 함수 (조회 및 페이징)
   // ----------------------------------------------------------------------------
   /**
    * 방명록 목록을 서버에서 불러옵니다.
@@ -230,7 +289,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // 방명록 아이템들을 목록에 순서대로 추가
       items.forEach(item => {
         const itemElem = createFeedbackItemElement(item);
         feedbackList.appendChild(itemElem);
@@ -238,7 +296,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       feedbackOffset += items.length;
 
-      // 더 불러올 데이터가 있으면 '더 보기' 버튼 노출
       if (data.hasMore) {
         btnFeedbackMore.classList.remove('hidden');
       } else {
@@ -254,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ----------------------------------------------------------------------------
-  // 8. 결과 화면 데이터 렌더링 함수
+  // 10. 결과 화면 데이터 렌더링 함수 (친구 시뮬레이션 포함)
   // ----------------------------------------------------------------------------
   /**
    * 서버로부터 받은 궁합 데이터를 화면에 안전하게 출력합니다.
@@ -287,10 +344,13 @@ document.addEventListener('DOMContentLoaded', () => {
     resDetail.textContent = data.description;
     resDating.textContent = data.datingScenario;
     resMarriage.textContent = data.marriageScenario;
+    if (resFriendship) {
+      resFriendship.textContent = data.friendshipScenario || '친구 시나리오를 불러오는 중입니다.';
+    }
   }
 
   // ----------------------------------------------------------------------------
-  // 9. 이벤트 리스너 등록
+  // 11. 이벤트 리스너 등록
   // ----------------------------------------------------------------------------
 
   // [START GAME] 버튼 클릭
@@ -312,15 +372,20 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     clearErrors();
 
-    const myBirth = myBirthDateInput.value.trim();
+    const myBirthRaw = myBirthDateInput.value.trim();
     const biasName = biasNameInput.value.trim();
-    const biasBirth = biasBirthDateInput.value.trim();
+    const biasBirthRaw = biasBirthDateInput.value.trim();
 
     let hasError = false;
-    if (!myBirth) {
-      myBirthError.textContent = '나의 생년월일을 선택해주세요.';
+
+    // 1) 나의 생년월일 검증
+    const myDateValidation = validateAndParseDate8(myBirthRaw, '나의 생년월일');
+    if (!myDateValidation.valid) {
+      myBirthError.textContent = myDateValidation.error;
       hasError = true;
     }
+
+    // 2) 최애 이름 검증
     if (!biasName) {
       biasNameError.textContent = '최애의 이름을 입력해주세요.';
       hasError = true;
@@ -328,8 +393,11 @@ document.addEventListener('DOMContentLoaded', () => {
       biasNameError.textContent = '이름은 1자 이상 40자 이내로 입력해주세요.';
       hasError = true;
     }
-    if (!biasBirth) {
-      biasBirthError.textContent = '최애의 생년월일을 선택해주세요.';
+
+    // 3) 최애 생년월일 검증
+    const biasDateValidation = validateAndParseDate8(biasBirthRaw, '최애의 생년월일');
+    if (!biasDateValidation.valid) {
+      biasBirthError.textContent = biasDateValidation.error;
       hasError = true;
     }
 
@@ -342,6 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
     switchView('loading');
 
     try {
+      // 서버 API에는 YYYY-MM-DD 포맷으로 변환하여 전달
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: {
@@ -349,9 +418,9 @@ document.addEventListener('DOMContentLoaded', () => {
           'Accept': 'application/json; charset=utf-8'
         },
         body: JSON.stringify({
-          myBirthDate: myBirth,
+          myBirthDate: myDateValidation.formatted,
           biasName: biasName,
-          biasBirthDate: biasBirth
+          biasBirthDate: biasDateValidation.formatted
         })
       });
 
@@ -409,11 +478,9 @@ document.addEventListener('DOMContentLoaded', () => {
           throw new Error(result.error || '방명록 등록에 실패했습니다.');
         }
 
-        // 입력 폼 초기화
         feedbackNickname.value = '';
         feedbackMessage.value = '';
 
-        // 첫 페이지부터 다시 최신 목록 로드
         await loadFeedbackList(true);
         showToast('방명록이 등록되었습니다! 💖', 'success');
 
@@ -433,7 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ----------------------------------------------------------------------------
-  // 10. 초기 데이터 로드 (페이지 열릴 때 방명록 목록 불러오기)
+  // 12. 초기 데이터 로드 (페이지 열릴 때 방명록 목록 불러오기)
   // ----------------------------------------------------------------------------
   loadFeedbackList(true);
 });

@@ -11,6 +11,9 @@ const { generateAIInterpretation } = require('../lib/services');
  * 궁합 분석 메인 핸들러
  */
 async function handler(req, res) {
+  // UTF-8 문자셋 헤더 명시
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+
   // 1. HTTP 메서드 확인 (POST만 허용)
   if (req.method !== 'POST') {
     return res.status(405).json({
@@ -38,7 +41,7 @@ async function handler(req, res) {
     // 4. 오행 간의 상생/상극 관계, 점수, 등급 산출
     const compatibility = calculateCompatibility(myElement, biasElement);
 
-    // 5. OpenAI GPT-4o-mini를 통한 밝고 팬심 가득한 해설 생성
+    // 5. OpenAI GPT-4o-mini를 통한 밝고 팬심 가득한 해설 생성 (연애, 결혼, 친구 시뮬레이션)
     let aiContent;
     try {
       aiContent = await generateAIInterpretation({
@@ -82,6 +85,7 @@ async function handler(req, res) {
         description: aiContent.description,
         datingScenario: aiContent.datingScenario,
         marriageScenario: aiContent.marriageScenario,
+        friendshipScenario: aiContent.friendshipScenario,
         disclaimer: '양력 출생연도 기준 간이 오행 테스트입니다.'
       }
     });
@@ -96,4 +100,3 @@ async function handler(req, res) {
 }
 
 module.exports = handler;
-

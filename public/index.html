@@ -51,21 +51,23 @@
         <section id="form-view" class="view-section hidden">
           <div class="section-header">
             <h2 class="section-title">🔮 프로필 입력</h2>
-            <p class="section-desc">정확한 분석을 위해 <strong>양력 생년월일</strong>을 입력해주세요.</p>
+            <p class="section-desc">정확한 분석을 위해 <strong>양력 생년월일 8자리</strong>를 입력해주세요.</p>
           </div>
 
           <form id="compatibility-form" novalidate>
             <!-- 나의 생년월일 입력 -->
             <div class="input-group">
               <label for="my-birthdate">
-                <span class="label-icon">👤</span> 나의 생년월일 (양력)
+                <span class="label-icon">👤</span> 나의 생년월일 (양력 8자리)
               </label>
               <input 
-                type="date" 
+                type="text" 
                 id="my-birthdate" 
                 name="myBirthDate" 
                 class="retro-input"
-                min="1900-01-01" 
+                placeholder="예: 20030923" 
+                maxlength="8" 
+                inputmode="numeric"
                 required 
               />
               <span class="input-error-msg" id="my-birthdate-error"></span>
@@ -91,14 +93,16 @@
             <!-- 최애 생년월일 입력 -->
             <div class="input-group">
               <label for="bias-birthdate">
-                <span class="label-icon">🎂</span> 최애의 생년월일 (양력)
+                <span class="label-icon">🎂</span> 최애의 생년월일 (양력 8자리)
               </label>
               <input 
-                type="date" 
+                type="text" 
                 id="bias-birthdate" 
                 name="biasBirthDate" 
                 class="retro-input"
-                min="1900-01-01" 
+                placeholder="예: 20030923" 
+                maxlength="8" 
+                inputmode="numeric"
                 required 
               />
               <span class="input-error-msg" id="bias-birthdate-error"></span>
@@ -168,7 +172,7 @@
             <div class="desc-detail" id="res-detail">AI 상세 해설 로딩 중...</div>
           </div>
 
-          <!-- 연애 & 결혼 카드 -->
+          <!-- 연애, 결혼, 친구 시뮬레이션 카드 -->
           <div class="scenario-grid">
             <div class="scenario-card">
               <h4>💖 연애 시뮬레이션</h4>
@@ -177,6 +181,10 @@
             <div class="scenario-card">
               <h4>💍 결혼/동반자 시뮬레이션</h4>
               <p id="res-marriage">결혼 분석 로딩 중...</p>
+            </div>
+            <div class="scenario-card full-width">
+              <h4>🍀 우리가 친구가 된다면?</h4>
+              <p id="res-friendship">친구 분석 로딩 중...</p>
             </div>
           </div>
 
@@ -251,4 +259,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-
