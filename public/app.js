@@ -52,6 +52,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const resDating = document.getElementById('res-dating');
   const resMarriage = document.getElementById('res-marriage');
 
+  // 방명록 관련 엘리먼트들
+  const feedbackForm = document.getElementById('feedback-form');
+  const feedbackNickname = document.getElementById('feedback-nickname');
+  const feedbackMessage = document.getElementById('feedback-message');
+  const btnFeedbackSubmit = document.getElementById('btn-feedback-submit');
+  const feedbackList = document.getElementById('feedback-list');
+  const btnFeedbackMore = document.getElementById('btn-feedback-more');
+
+  // 방명록 페이징 상태 변수
+  let feedbackOffset = 0;
+  const FEEDBACK_LIMIT = 50;
+
   // 토스트 알림창
   const toast = document.getElementById('toast');
   let toastTimer = null;
@@ -121,7 +133,124 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ----------------------------------------------------------------------------
-  // 5. 결과 화면 데이터 렌더링 함수
+  // 5. 날짜 포맷팅 헬퍼 (방명록 시간 표시용)
+  // ----------------------------------------------------------------------------
+  function formatKoreanDate(isoString) {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return '';
+
+    const now = new Date();
+    const diffSec = Math.floor((now - date) / 1000);
+
+    if (diffSec < 60) return '방금 전';
+    if (diffSec < 3600) return `${Math.floor(diffSec / 60)}분 전`;
+    if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}시간 전`;
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
+  }
+
+  // ----------------------------------------------------------------------------
+  // 6. 방명록 DOM 아이템 생성 헬퍼 (XSS 보안: 반드시 textContent 사용)
+  // ----------------------------------------------------------------------------
+  function createFeedbackItemElement(item) {
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'feedback-item';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'feedback-avatar';
+    avatar.textContent = '💖';
+
+    const body = document.createElement('div');
+    body.className = 'feedback-body';
+
+    const meta = document.createElement('div');
+    meta.className = 'feedback-meta';
+
+    const author = document.createElement('span');
+    author.className = 'feedback-author';
+    author.textContent = item.nickname || '익명';
+
+    const time = document.createElement('span');
+    time.className = 'feedback-time';
+    time.textContent = formatKoreanDate(item.created_at);
+
+    meta.appendChild(author);
+    meta.appendChild(time);
+
+    const text = document.createElement('p');
+    text.className = 'feedback-text';
+    text.textContent = item.message || '';
+
+    body.appendChild(meta);
+    body.appendChild(text);
+
+    itemDiv.appendChild(avatar);
+    itemDiv.appendChild(body);
+
+    return itemDiv;
+  }
+
+  // ----------------------------------------------------------------------------
+  // 7. 방명록 API 연동 함수 (조회 및 페이징)
+  // ----------------------------------------------------------------------------
+  /**
+   * 방명록 목록을 서버에서 불러옵니다.
+   * @param {boolean} isInitial - 처음 로드인지(기존 목록 초기화), 더보기인지 여부
+   */
+  async function loadFeedbackList(isInitial = false) {
+    if (isInitial) {
+      feedbackOffset = 0;
+    }
+
+    try {
+      const response = await fetch(`/api/feedback?limit=${FEEDBACK_LIMIT}&offset=${feedbackOffset}`);
+      const data = await response.json();
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || '방명록을 불러오지 못했습니다.');
+      }
+
+      if (isInitial) {
+        feedbackList.innerHTML = '';
+      }
+
+      const items = data.items || [];
+
+      if (items.length === 0 && feedbackOffset === 0) {
+        feedbackList.innerHTML = '<div class="feedback-empty">등록된 방명록이 없습니다. 첫 번째 글을 남겨보세요!</div>';
+        btnFeedbackMore.classList.add('hidden');
+        return;
+      }
+
+      // 방명록 아이템들을 목록에 순서대로 추가
+      items.forEach(item => {
+        const itemElem = createFeedbackItemElement(item);
+        feedbackList.appendChild(itemElem);
+      });
+
+      feedbackOffset += items.length;
+
+      // 더 불러올 데이터가 있으면 '더 보기' 버튼 노출
+      if (data.hasMore) {
+        btnFeedbackMore.classList.remove('hidden');
+      } else {
+        btnFeedbackMore.classList.add('hidden');
+      }
+
+    } catch (err) {
+      console.error('방명록 조회 오류:', err.message);
+      if (isInitial) {
+        feedbackList.innerHTML = '<div class="feedback-empty">방명록을 불러오지 못했습니다. 잠시 후 새로고침 해주세요.</div>';
+      }
+    }
+  }
+
+  // ----------------------------------------------------------------------------
+  // 8. 결과 화면 데이터 렌더링 함수
   // ----------------------------------------------------------------------------
   /**
    * 서버로부터 받은 궁합 데이터를 화면에 안전하게 출력합니다.
@@ -157,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ----------------------------------------------------------------------------
-  // 6. 이벤트 리스너 등록
+  // 9. 이벤트 리스너 등록
   // ----------------------------------------------------------------------------
 
   // [START GAME] 버튼 클릭
@@ -179,12 +308,10 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     clearErrors();
 
-    // 입력값 가져오기
     const myBirth = myBirthDateInput.value.trim();
     const biasName = biasNameInput.value.trim();
     const biasBirth = biasBirthDateInput.value.trim();
 
-    // 유효성 검사
     let hasError = false;
     if (!myBirth) {
       myBirthError.textContent = '나의 생년월일을 선택해주세요.';
@@ -207,12 +334,10 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // 중복 전송 방지: 버튼 비활성화 및 로딩 화면 전환
     btnSubmit.disabled = true;
     switchView('loading');
 
     try {
-      // 서버 API 호출
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: {
@@ -231,35 +356,25 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error(result.error || '분석 중 오류가 발생했습니다.');
       }
 
-      // 결과 화면 렌더링 후 화면 전환
       renderAnalysisResult(result.data, biasName);
       switchView('result');
       showToast('궁합 분석이 완료되었습니다!', 'success');
 
     } catch (err) {
-      // 오류 발생 시 폼 화면 유지 및 입력값 보존
       switchView('form');
       showToast(err.message, 'error');
     } finally {
-      // 버튼 다시 활성화
       btnSubmit.disabled = false;
     }
   });
 
-  // ----------------------------------------------------------------------------
-  // 7. 방명록 로컬 UI 이벤트 (4단계에서 Supabase 연동 예정)
-  // ----------------------------------------------------------------------------
-  const feedbackForm = document.getElementById('feedback-form');
-  const feedbackList = document.getElementById('feedback-list');
-
+  // 방명록 등록 이벤트 (POST /api/feedback)
   if (feedbackForm) {
-    feedbackForm.addEventListener('submit', (e) => {
+    feedbackForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const nicknameInput = document.getElementById('feedback-nickname');
-      const messageInput = document.getElementById('feedback-message');
       
-      const nickname = nicknameInput.value.trim();
-      const message = messageInput.value.trim();
+      const nickname = feedbackNickname.value.trim();
+      const message = feedbackMessage.value.trim();
 
       if (nickname.length < 2 || nickname.length > 15) {
         showToast('닉네임은 2자 이상 15자 이하로 입력해주세요.', 'error');
@@ -271,50 +386,48 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      const emptyMsg = feedbackList.querySelector('.feedback-empty');
-      if (emptyMsg) {
-        emptyMsg.remove();
+      btnFeedbackSubmit.disabled = true;
+
+      try {
+        const response = await fetch('/api/feedback', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ nickname, message })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.ok) {
+          throw new Error(result.error || '방명록 등록에 실패했습니다.');
+        }
+
+        // 입력 폼 초기화
+        feedbackNickname.value = '';
+        feedbackMessage.value = '';
+
+        // 첫 페이지부터 다시 최신 목록 로드
+        await loadFeedbackList(true);
+        showToast('방명록이 등록되었습니다! 💖', 'success');
+
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btnFeedbackSubmit.disabled = false;
       }
-
-      const itemDiv = document.createElement('div');
-      itemDiv.className = 'feedback-item';
-
-      const avatar = document.createElement('div');
-      avatar.className = 'feedback-avatar';
-      avatar.textContent = '💖';
-
-      const body = document.createElement('div');
-      body.className = 'feedback-body';
-
-      const meta = document.createElement('div');
-      meta.className = 'feedback-meta';
-
-      const author = document.createElement('span');
-      author.className = 'feedback-author';
-      author.textContent = nickname;
-
-      const time = document.createElement('span');
-      time.className = 'feedback-time';
-      time.textContent = '방금 전';
-
-      meta.appendChild(author);
-      meta.appendChild(time);
-
-      const text = document.createElement('p');
-      text.className = 'feedback-text';
-      text.textContent = message;
-
-      body.appendChild(meta);
-      body.appendChild(text);
-
-      itemDiv.appendChild(avatar);
-      itemDiv.appendChild(body);
-
-      feedbackList.prepend(itemDiv);
-
-      nicknameInput.value = '';
-      messageInput.value = '';
-      showToast('방명록이 등록되었습니다!', 'success');
     });
   }
+
+  // 방명록 '더 보기' 버튼 클릭 이벤트
+  if (btnFeedbackMore) {
+    btnFeedbackMore.addEventListener('click', () => {
+      loadFeedbackList(false);
+    });
+  }
+
+  // ----------------------------------------------------------------------------
+  // 10. 초기 데이터 로드 (페이지 열릴 때 방명록 목록 불러오기)
+  // ----------------------------------------------------------------------------
+  loadFeedbackList(true);
 });

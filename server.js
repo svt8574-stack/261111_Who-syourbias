@@ -13,6 +13,7 @@ dotenv.config();
 
 // 3. API 라우트 핸들러 불러오기
 const handleAnalyze = require('./api/analyze');
+const handleFeedback = require('./api/feedback');
 
 // 4. Express 앱 생성 및 설정
 const app = express();
@@ -33,6 +34,11 @@ app.get('/api/health', (req, res) => {
 // 7-2. 궁합 분석 API
 app.post('/api/analyze', (req, res) => {
   return handleAnalyze(req, res);
+});
+
+// 7-3. 방명록 조회 및 등록 API
+app.all('/api/feedback', (req, res) => {
+  return handleFeedback(req, res);
 });
 
 // 8. 서버 시작
