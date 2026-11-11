@@ -1,0 +1,714 @@
+/* ==============================================================================
+   파일명: public/styles.css
+   설명: Y2K 레트로 게임 콘솔 감성의 반응형 스타일시트
+   ============================================================================== */
+
+/* 1. 디자인 시스템 변수 정의 (컬러, 여백, 폰트) */
+:root {
+  --bg-cobalt: #1e3c72;
+  --bg-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e57c2 100%);
+  --window-bg: #eef2f7;
+  --header-blue: #002266;
+  
+  --primary-pink: #ff2e93;
+  --primary-pink-hover: #ff0077;
+  --primary-pink-shadow: #b30054;
+  
+  --btn-silver: #e0e0e0;
+  --btn-silver-hover: #d0d0d0;
+  --btn-silver-shadow: #888888;
+
+  --btn-lavender: #b39ddb;
+  --btn-lavender-hover: #9575cd;
+  --btn-lavender-shadow: #5e35b1;
+
+  --text-dark: #222222;
+  --text-muted: #555555;
+  --border-dark: #111111;
+  --border-light: #ffffff;
+
+  /* 오행(Wood, Fire, Earth, Metal, Water) 테마 색상 */
+  --wood-color: #1b5e20;
+  --wood-bg: #e8f5e9;
+  --wood-border: #4caf50;
+
+  --fire-color: #b71c1c;
+  --fire-bg: #ffebee;
+  --fire-border: #ef5350;
+
+  --earth-color: #e65100;
+  --earth-bg: #fff3e0;
+  --earth-border: #ff9800;
+
+  --metal-color: #37474f;
+  --metal-bg: #eceff1;
+  --metal-border: #90a4ae;
+
+  --water-color: #0d47a1;
+  --water-bg: #e3f2fd;
+  --water-border: #2196f3;
+}
+
+/* 2. 기본 초기화 및 레이아웃 */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  background: var(--bg-gradient);
+  color: var(--text-dark);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px 12px;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* 3. 토스트 알림창 */
+.toast {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toast.toast-error {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 2px solid #ef5350;
+}
+
+.toast.toast-success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 2px solid #66bb6a;
+}
+
+/* 4. 레트로 윈도우 프레임 */
+.retro-window {
+  background-color: var(--window-bg);
+  border: 3px solid var(--border-dark);
+  border-radius: 8px;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.window-header {
+  background: linear-gradient(90deg, #001f5c, #1f4ba0);
+  color: #ffffff;
+  padding: 8px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid var(--border-dark);
+}
+
+.window-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.window-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.control-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 18px;
+  height: 18px;
+  background-color: #dddddd;
+  border: 1px solid #333333;
+  color: #111111;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.window-body {
+  padding: 24px 20px;
+}
+
+/* 5. 뷰 섹션 공통 스타일 */
+.view-section {
+  display: block;
+}
+
+.view-section.hidden,
+.hidden {
+  display: none !important;
+}
+
+/* 6. 시작 화면 (Start View) */
+.hero-content {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.pixel-badge {
+  display: inline-block;
+  background-color: #ffd54f;
+  border: 2px solid var(--border-dark);
+  padding: 4px 10px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  box-shadow: 2px 2px 0px var(--border-dark);
+  margin-bottom: 16px;
+}
+
+.main-title {
+  font-size: 1.8rem;
+  line-height: 1.3;
+  font-weight: 900;
+  color: #0b1e48;
+  margin-bottom: 12px;
+  text-shadow: 1px 1px 0px #ffffff;
+}
+
+.highlight-text {
+  color: var(--primary-pink);
+  text-shadow: 2px 2px 0px #ffffff, 3px 3px 0px rgba(0,0,0,0.2);
+}
+
+.sub-copy {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.hero-illustration {
+  font-size: 2.2rem;
+  margin: 16px 0 28px 0;
+  letter-spacing: 6px;
+}
+
+/* 7. 레트로 3D 버튼 스타일 */
+.retro-btn {
+  font-family: inherit;
+  font-weight: bold;
+  cursor: pointer;
+  border: 2px solid var(--border-dark);
+  border-radius: 6px;
+  transition: transform 0.05s ease, box-shadow 0.05s ease;
+  user-select: none;
+}
+
+.retro-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px transparent !important;
+}
+
+.retro-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-pink {
+  background-color: var(--primary-pink);
+  color: #ffffff;
+  box-shadow: 3px 3px 0px var(--primary-pink-shadow);
+}
+
+.btn-pink:hover:not(:disabled) {
+  background-color: var(--primary-pink-hover);
+}
+
+.btn-silver {
+  background-color: var(--btn-silver);
+  color: #111111;
+  box-shadow: 3px 3px 0px var(--btn-silver-shadow);
+}
+
+.btn-silver:hover:not(:disabled) {
+  background-color: var(--btn-silver-hover);
+}
+
+.btn-lavender {
+  background-color: var(--btn-lavender);
+  color: #ffffff;
+  box-shadow: 3px 3px 0px var(--btn-lavender-shadow);
+}
+
+.btn-large {
+  font-size: 1.1rem;
+  padding: 14px 32px;
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 1.05rem;
+}
+
+/* 8. 입력 화면 (Form View) */
+.section-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #0b1e48;
+  margin-bottom: 6px;
+}
+
+.section-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.input-group {
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #222222;
+}
+
+.label-icon {
+  margin-right: 4px;
+}
+
+.retro-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid var(--border-dark);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background-color: #ffffff;
+  box-shadow: inset 2px 2px 0px rgba(0,0,0,0.1);
+  outline: none;
+}
+
+.retro-input:focus {
+  border-color: var(--primary-pink);
+  box-shadow: 0 0 0 2px rgba(255, 46, 147, 0.2);
+}
+
+.input-error-msg {
+  display: block;
+  font-size: 0.8rem;
+  color: #d32f2f;
+  margin-top: 4px;
+  min-height: 1.1rem;
+}
+
+.notice-box {
+  background-color: #fff9c4;
+  border: 1px dashed #fbc02d;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #555555;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+/* 9. 로딩 화면 (Loading View) */
+.loading-content {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.loading-spinner {
+  font-size: 3rem;
+  animation: spin 1.5s infinite linear;
+  display: inline-block;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.2); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.loading-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #0b1e48;
+  margin-bottom: 8px;
+}
+
+.loading-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* 10. 결과 화면 (Result View) */
+.result-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.result-badge {
+  display: inline-block;
+  background-color: var(--primary-pink);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.result-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.elements-compare-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.element-card {
+  flex: 1;
+  background-color: #ffffff;
+  border: 2px solid var(--border-dark);
+  border-radius: 8px;
+  padding: 12px 6px;
+  text-align: center;
+  box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+/* 오행 테마별 카드 배경 및 테두리 색상 */
+.element-card.element-wood {
+  background-color: var(--wood-bg);
+  border-color: var(--wood-border);
+  color: var(--wood-color);
+}
+.element-card.element-fire {
+  background-color: var(--fire-bg);
+  border-color: var(--fire-border);
+  color: var(--fire-color);
+}
+.element-card.element-earth {
+  background-color: var(--earth-bg);
+  border-color: var(--earth-border);
+  color: var(--earth-color);
+}
+.element-card.element-metal {
+  background-color: var(--metal-bg);
+  border-color: var(--metal-border);
+  color: var(--metal-color);
+}
+.element-card.element-water {
+  background-color: var(--water-bg);
+  border-color: var(--water-border);
+  color: var(--water-color);
+}
+
+.card-role {
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: inherit;
+  opacity: 0.8;
+  margin-bottom: 4px;
+}
+
+.element-icon {
+  font-size: 2rem;
+  margin-bottom: 4px;
+}
+
+.element-name {
+  font-size: 1.05rem;
+  font-weight: 900;
+  margin-bottom: 2px;
+}
+
+.element-symbol {
+  font-size: 0.75rem;
+  opacity: 0.85;
+  font-weight: bold;
+}
+
+.match-score-card {
+  flex: 1.2;
+  text-align: center;
+  background: #ffffff;
+  border: 2px dashed var(--primary-pink);
+  border-radius: 8px;
+  padding: 10px 4px;
+}
+
+.relation-name {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--primary-pink);
+  margin-bottom: 4px;
+}
+
+.score-display {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+}
+
+.score-number {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #0b1e48;
+}
+
+.score-unit {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-left: 2px;
+}
+
+.score-grade {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #333333;
+}
+
+.result-description-card {
+  background-color: #ffffff;
+  border: 2px solid var(--border-dark);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+}
+
+.desc-title {
+  font-size: 1rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: #0b1e48;
+}
+
+.desc-summary {
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: var(--primary-pink);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.desc-detail {
+  font-size: 0.9rem;
+  color: #333333;
+  line-height: 1.6;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.scenario-card {
+  background-color: #ffffff;
+  border: 2px solid var(--border-dark);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 2px 2px 0px rgba(0,0,0,0.08);
+}
+
+.scenario-card h4 {
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+  color: #0b1e48;
+}
+
+.scenario-card p {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #444444;
+}
+
+.disclaimer-text {
+  font-size: 0.75rem;
+  color: #777777;
+  text-align: center;
+  margin-bottom: 20px;
+  line-height: 1.3;
+}
+
+/* 11. 방명록 섹션 (Feedback Section) */
+.feedback-section {
+  background-color: var(--window-bg);
+  border: 3px solid var(--border-dark);
+  border-radius: 8px;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+  padding: 20px;
+}
+
+.feedback-header {
+  margin-bottom: 14px;
+}
+
+.feedback-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0b1e48;
+}
+
+.feedback-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.feedback-form-inputs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.input-small {
+  width: 110px;
+  flex-shrink: 0;
+}
+
+.input-grow {
+  flex-grow: 1;
+}
+
+.feedback-notice {
+  font-size: 0.75rem;
+  color: #777777;
+  margin-bottom: 16px;
+}
+
+.feedback-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.feedback-item {
+  display: flex;
+  gap: 10px;
+  background-color: #ffffff;
+  border: 2px solid var(--border-dark);
+  border-radius: 6px;
+  padding: 10px;
+  box-shadow: 2px 2px 0px rgba(0,0,0,0.08);
+}
+
+.feedback-avatar {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.feedback-body {
+  flex-grow: 1;
+}
+
+.feedback-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.feedback-author {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #0b1e48;
+}
+
+.feedback-time {
+  font-size: 0.75rem;
+  color: #888888;
+}
+
+.feedback-text {
+  font-size: 0.85rem;
+  color: #333333;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.feedback-empty {
+  text-align: center;
+  padding: 24px 0;
+  font-size: 0.85rem;
+  color: #888888;
+}
+
+.feedback-pagination {
+  text-align: center;
+  margin-top: 14px;
+}
+
+/* 12. 푸터 */
+.app-footer {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  padding-bottom: 12px;
+}
+
+/* 13. 반응형 (모바일 480px 이하) 미디어 쿼리 */
+@media (max-width: 480px) {
+  body {
+    padding: 10px 8px;
+  }
+
+  .main-title {
+    font-size: 1.5rem;
+  }
+
+  .elements-compare-container {
+    flex-direction: column;
+  }
+
+  .element-card, .match-score-card {
+    width: 100%;
+  }
+
+  .scenario-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .feedback-form-inputs {
+    flex-direction: column;
+  }
+
+  .input-small {
+    width: 100%;
+  }
+}

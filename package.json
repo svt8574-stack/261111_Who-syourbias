@@ -1,0 +1,24 @@
+{
+  "name": "idol-saju-compatibility",
+  "version": "1.0.0",
+  "description": "사주오행으로 보는 내 최애와 나의 궁합도 테스트 웹 애플리케이션",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "saju",
+    "compatibility",
+    "kpop",
+    "y2k"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "openai": "^4.52.0",
+    "@supabase/supabase-js": "^2.43.4"
+  }
+}
+

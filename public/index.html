@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Who’s your bias? I’m Your Bias! - 사주오행 궁합</title>
+  <!-- 스타일 시트 연결 -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- 상단 토스트 알림 (에러 및 성공 메시지 안내) -->
+  <div id="toast" class="toast hidden" role="alert" aria-live="polite"></div>
+
+  <!-- 전체 페이지 감싸개 -->
+  <div class="app-container">
+    
+    <!-- 메인 레트로 게임 콘솔 창 -->
+    <main class="retro-window">
+      <!-- 윈도우 상단 타이틀 바 -->
+      <header class="window-header">
+        <div class="window-title">★ BIAS COMPATIBILITY TEST ★</div>
+        <div class="window-controls">
+          <span class="control-btn minimize">_</span>
+          <span class="control-btn maximize">□</span>
+          <span class="control-btn close">×</span>
+        </div>
+      </header>
+
+      <!-- 윈도우 내부 콘텐츠 영역 -->
+      <div class="window-body">
+
+        <!-- 1. 시작 화면 (Hero / Start View) -->
+        <section id="start-view" class="view-section">
+          <div class="hero-content">
+            <div class="pixel-badge">LEVEL 01: READY?</div>
+            <h1 class="main-title">
+              Who’s your bias?<br>
+              <span class="highlight-text">I’m Your Bias!</span>
+            </h1>
+            <p class="sub-copy">사주오행으로 보는 내 최애와 나의 운명적 케미스트리 ✨</p>
+            <div class="hero-illustration" aria-hidden="true">
+              💖 ✦ 🪩 ✦ 💖
+            </div>
+            <button id="btn-start" type="button" class="retro-btn btn-pink btn-large">
+              START GAME ▶
+            </button>
+          </div>
+        </section>
+
+        <!-- 2. 정보 입력 화면 (Form View) -->
+        <section id="form-view" class="view-section hidden">
+          <div class="section-header">
+            <h2 class="section-title">🔮 프로필 입력</h2>
+            <p class="section-desc">정확한 분석을 위해 <strong>양력 생년월일</strong>을 입력해주세요.</p>
+          </div>
+
+          <form id="compatibility-form" novalidate>
+            <!-- 나의 생년월일 입력 -->
+            <div class="input-group">
+              <label for="my-birthdate">
+                <span class="label-icon">👤</span> 나의 생년월일 (양력)
+              </label>
+              <input 
+                type="date" 
+                id="my-birthdate" 
+                name="myBirthDate" 
+                class="retro-input"
+                min="1900-01-01" 
+                required 
+              />
+              <span class="input-error-msg" id="my-birthdate-error"></span>
+            </div>
+
+            <!-- 최애 이름 입력 -->
+            <div class="input-group">
+              <label for="bias-name">
+                <span class="label-icon">⭐</span> 내 최애의 이름 (또는 예명)
+              </label>
+              <input 
+                type="text" 
+                id="bias-name" 
+                name="biasName" 
+                class="retro-input"
+                placeholder="예: 카리나, 장원영, 정국" 
+                maxlength="40" 
+                required 
+              />
+              <span class="input-error-msg" id="bias-name-error"></span>
+            </div>
+
+            <!-- 최애 생년월일 입력 -->
+            <div class="input-group">
+              <label for="bias-birthdate">
+                <span class="label-icon">🎂</span> 최애의 생년월일 (양력)
+              </label>
+              <input 
+                type="date" 
+                id="bias-birthdate" 
+                name="biasBirthDate" 
+                class="retro-input"
+                min="1900-01-01" 
+                required 
+              />
+              <span class="input-error-msg" id="bias-birthdate-error"></span>
+            </div>
+
+            <div class="notice-box">
+              <p>※ 출생 연도 기반의 간이 오행 분류 방식이며, 실제 사주팔자와는 다를 수 있습니다.</p>
+            </div>
+
+            <button type="submit" id="btn-submit" class="retro-btn btn-pink btn-block">
+              궁합 분석하기 🪄
+            </button>
+          </form>
+        </section>
+
+        <!-- 3. 로딩 화면 (Loading View) -->
+        <section id="loading-view" class="view-section hidden">
+          <div class="loading-content">
+            <div class="loading-spinner" aria-hidden="true">💫</div>
+            <h2 class="loading-title">우리의 케미를 분석 중...</h2>
+            <p class="loading-subtitle">별빛 데이터와 사주 오행을 동기화하고 있어요!</p>
+          </div>
+        </section>
+
+        <!-- 4. 결과 화면 (Result View) -->
+        <section id="result-view" class="view-section hidden">
+          <div class="result-header">
+            <span class="result-badge">MATCH RESULT</span>
+            <h2 class="result-title">
+              <span id="res-my-name">나</span> & <span id="res-bias-name">최애</span>
+            </h2>
+          </div>
+
+          <!-- 오행 대조 카드 -->
+          <div class="elements-compare-container">
+            <!-- 내 오행 카드 -->
+            <div id="my-element-card" class="element-card">
+              <div class="card-role">ME</div>
+              <div class="element-icon" id="my-element-icon">🌲</div>
+              <div class="element-name" id="my-element-name">목 (木)</div>
+              <div class="element-symbol" id="my-element-symbol">나무의 기운</div>
+            </div>
+
+            <!-- 관계 화살표 및 궁합 점수 -->
+            <div class="match-score-card">
+              <div class="relation-name" id="res-relation-name">상생(相生)</div>
+              <div class="score-display">
+                <span class="score-number" id="res-score-number">95</span>
+                <span class="score-unit">점</span>
+              </div>
+              <div class="score-grade" id="res-score-grade">천생연분 등급</div>
+            </div>
+
+            <!-- 최애 오행 카드 -->
+            <div id="bias-element-card" class="element-card">
+              <div class="card-role">BIAS</div>
+              <div class="element-icon" id="bias-element-icon">🔥</div>
+              <div class="element-name" id="bias-element-name">화 (火)</div>
+              <div class="element-symbol" id="bias-element-symbol">불의 기운</div>
+            </div>
+          </div>
+
+          <!-- AI 해설 영역 -->
+          <div class="result-description-card">
+            <h3 class="desc-title">💌 우리의 운명 스토리</h3>
+            <p class="desc-summary" id="res-summary">총평 로딩 중...</p>
+            <div class="desc-detail" id="res-detail">AI 상세 해설 로딩 중...</div>
+          </div>
+
+          <!-- 연애 & 결혼 카드 -->
+          <div class="scenario-grid">
+            <div class="scenario-card">
+              <h4>💖 연애 시뮬레이션</h4>
+              <p id="res-dating">연애 분석 로딩 중...</p>
+            </div>
+            <div class="scenario-card">
+              <h4>💍 결혼/동반자 시뮬레이션</h4>
+              <p id="res-marriage">결혼 분석 로딩 중...</p>
+            </div>
+          </div>
+
+          <!-- 면책 안내문 -->
+          <p class="disclaimer-text">
+            ※ 본 결과는 재미로 보는 간이 오행 궁합 테스트이며, 실제 연예인의 성격이나 관계를 단정하지 않습니다.
+          </p>
+
+          <button type="button" id="btn-restart" class="retro-btn btn-silver btn-block">
+            다시 분석하기 🔄
+          </button>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- 5. 하단 방명록 (Feedback Section) -->
+    <section class="feedback-section">
+      <div class="feedback-header">
+        <h3 class="feedback-title">💌 팬들의 한 줄 방명록</h3>
+        <p class="feedback-subtitle">최애와의 궁합 후기를 자유롭게 남겨보세요!</p>
+      </div>
+
+      <!-- 방명록 작성 폼 -->
+      <form id="feedback-form" class="feedback-form">
+        <div class="feedback-form-inputs">
+          <input 
+            type="text" 
+            id="feedback-nickname" 
+            placeholder="닉네임 (2~15자)" 
+            maxlength="15" 
+            required 
+            class="retro-input input-small" 
+          />
+          <input 
+            type="text" 
+            id="feedback-message" 
+            placeholder="응원 글이나 후기를 남겨주세요 (최대 300자)" 
+            maxlength="300" 
+            required 
+            class="retro-input input-grow" 
+          />
+          <button type="submit" id="btn-feedback-submit" class="retro-btn btn-pink">
+            등록
+          </button>
+        </div>
+        <p class="feedback-notice">※ 공개 방명록이므로 개인정보(실명, 전화번호 등) 입력은 삼가주세요.</p>
+      </form>
+
+      <!-- 방명록 목록 -->
+      <div id="feedback-list" class="feedback-list">
+        <!-- 초기 안내 메시지 -->
+        <div class="feedback-empty">등록된 방명록이 없습니다. 첫 번째 글을 남겨보세요!</div>
+      </div>
+
+      <!-- 더 보기 버튼 -->
+      <div class="feedback-pagination">
+        <button type="button" id="btn-feedback-more" class="retro-btn btn-lavender hidden">
+          방명록 더 보기 +
+        </button>
+      </div>
+    </section>
+
+    <!-- 푸터 -->
+    <footer class="app-footer">
+      <p>© 2026 Who’s your bias? I’m Your Bias! All rights reserved.</p>
+    </footer>
+
+  </div>
+
+  <!-- 자바스크립트 연결 -->
+  <script src="app.js"></script>
+</body>
+</html>
+
