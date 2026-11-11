@@ -207,7 +207,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      const response = await fetch(`/api/feedback?limit=${FEEDBACK_LIMIT}&offset=${feedbackOffset}`);
+      const response = await fetch(`/api/feedback?limit=${FEEDBACK_LIMIT}&offset=${feedbackOffset}`, {
+        headers: {
+          'Accept': 'application/json; charset=utf-8'
+        }
+      });
       const data = await response.json();
 
       if (!response.ok || !data.ok) {
@@ -341,7 +345,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json; charset=utf-8'
         },
         body: JSON.stringify({
           myBirthDate: myBirth,
@@ -392,7 +397,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch('/api/feedback', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json; charset=utf-8',
+            'Accept': 'application/json; charset=utf-8'
           },
           body: JSON.stringify({ nickname, message })
         });

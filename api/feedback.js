@@ -40,6 +40,9 @@ function isRateLimited(ip) {
  * 방명록 API 통합 핸들러
  */
 async function handler(req, res) {
+  // UTF-8 문자셋 헤더 명시
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+
   let supabase;
   try {
     supabase = getSupabaseClient();
@@ -56,14 +59,12 @@ async function handler(req, res) {
   // ----------------------------------------------------------------------------
   if (req.method === 'GET') {
     try {
-      // 쿼리 파라미터 파싱 및 기본값 설정
       const limitParam = parseInt(req.query.limit, 10);
       const offsetParam = parseInt(req.query.offset, 10);
 
       const limit = (!isNaN(limitParam) && limitParam > 0 && limitParam <= 50) ? limitParam : 50;
       const offset = (!isNaN(offsetParam) && offsetParam >= 0) ? offsetParam : 0;
 
-      // 다음 페이지 존재 여부(hasMore) 확인을 위해 limit + 1개를 조회합니다.
       const { data, error } = await supabase
         .from('feedback')
         .select('id, nickname, message, created_at')
@@ -102,10 +103,8 @@ async function handler(req, res) {
   // ----------------------------------------------------------------------------
   if (req.method === 'POST') {
     try {
-      // 클라이언트 IP 확인 (Vercel 프록시 헤더 고려)
       const clientIp = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress || 'unknown';
 
-      // 1분당 5회 쓰기 제한 검사
       if (isRateLimited(clientIp)) {
         return res.status(429).json({
           ok: false,
@@ -113,7 +112,6 @@ async function handler(req, res) {
         });
       }
 
-      // 입력 데이터 유효성 검증 (닉네임 2~15자, 내용 1~300자)
       const validation = validateFeedbackRequest(req.body);
       if (!validation.valid) {
         return res.status(400).json({
@@ -124,7 +122,6 @@ async function handler(req, res) {
 
       const { nickname, message } = validation.sanitizedData;
 
-      // Supabase feedback 테이블에 삽입 (보안: IP는 DB에 저장하지 않음)
       const { data, error } = await supabase
         .from('feedback')
         .insert([{ nickname, message }])
@@ -153,7 +150,6 @@ async function handler(req, res) {
     }
   }
 
-  // 허용되지 않은 HTTP 메서드
   return res.status(405).json({
     ok: false,
     error: '허용되지 않는 HTTP 메서드입니다. GET 또는 POST만 지원합니다.'
@@ -161,4 +157,3 @@ async function handler(req, res) {
 }
 
 module.exports = handler;
-
